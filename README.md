@@ -7,11 +7,11 @@
 	1. Syntax can differ between assemblers (even for same arch)
 2. `ex1.asm`
 
-		global _start --> entry point for program (processor executes from here), global - keyword used to make an id accessible to linker
-		_start: --> label (names locations in code)
+		global _start ; entry point for program (processor executes from here), global - keyword used to make an id accessible to linker
+		_start: ; label (names locations in code)
 			mov eax, 1
 			mov ebx, 42
-			int 0x80 --> processor transfers control to interrupt handler specified by value 0x80 - 80 is for system call, 1 : exit call, ebx -> exit status
+			int 0x80 ; processor transfers control to interrupt handler specified by value 0x80 - 80 is for system call, 1 : exit call, ebx -> exit status
 
 3. assembling:
 
@@ -50,8 +50,8 @@
 
 		global _start
 		section .data
-			msg db "Hello, world!", 0x0a --> 0x0a - for newline character
-			len equ $ - msg --> $ location after string, msg start of string
+			msg db "Hello, world!", 0x0a ; 0x0a - for newline character
+			len equ $ - msg ; $ location after string, msg start of string
 			
 		section .text
 		_start:
@@ -76,10 +76,10 @@
 		
 		section .text
 		_start:
-			mov ebx, 42 ; exit status is 42
-			mov eax, 1   ; sys_exit system call
-			jmp skip       ; jump to "skip" label
-			mov ebx, 13 ; exit status is 13
+			mov ebx, 42	; exit status is 42
+			mov eax, 1	; sys_exit system call
+			jmp skip	; jump to "skip" label
+			mov ebx, 13	; exit status is 13
 		skip: ; label
 			int 0x80
 			
@@ -115,10 +115,10 @@
 			mov ebx, 1	; start ebx at 1
 			mov ecx, 4	; number of iterations
 		label:
-			add ebx, ebx   ; ebx += ebx
+			add ebx, ebx	; ebx += ebx
 			dec ecx		; ecx -= 1 - more efficient
 			cmp ecx, 0	; compare ecx with 0
-			jg label		; jump to label if greater
+			jg label	; jump to label if greater
 			mov eax, 1	; sys_exit system call
 			int 0x80
 			
@@ -130,13 +130,13 @@
 			add db "yellow" ; memory contains the word "yellow"
 		section .text
 		_start:
-			mov eax, 4		; sys_write system call
-			mov ebx, 1		; stdout file descriptor
+			mov eax, 4	; sys_write system call
+			mov ebx, 1	; stdout file descriptor
 			mov ecx, addr	; bytes to write
-			mov edx, 6		; number of bytes to write
-			mov eax, 1		; sys_exit system call
-			mov ebx, 0		; exit status is 0
-			int 0x80
+			mov edx, 6	; number of bytes to write
+			mov eax, 1	; sys_exit system call
+			mov ebx, 0	; exit status is 0
+			int 0x80	; interrupt
 			
 2. How to change content?
 
@@ -222,16 +222,16 @@
 			mov ebx, 0
 			int 0x80
 		func:
-			mov ebp, esp	; stores top pointer first
+			mov ebp, esp		; stores top pointer first
 			sub esp, 2
 			mov [esp], byte 'H'
 			mov [esp+1], byte 'i'
-			mov eax, 4	; sys_write system call
-			mov ebx, 1	; stdout file descriptor
-			mov ecx, esp	; bytes to write
-			mov edx, 2	; number of bytes to write
+			mov eax, 4		; sys_write system call
+			mov ebx, 1		; stdout file descriptor
+			mov ecx, esp		; bytes to write
+			mov edx, 2		; number of bytes to write
 			int 0x80		; interrupt
-			mov esp, ebp	; restores top pointer
+			mov esp, ebp		; restores top pointer
 			ret
 			
 5. Nested function calls: push `ebp` and pop `ebp`
@@ -247,17 +247,17 @@
 1. Passing an argument
 
 		_start:
-			push 21	; argument
+			push 21			; argument
 			call times2
-			mov ebx, eax	; return value is stored in eax but moving to ebx
+			mov ebx, eax		; return value is stored in eax but moving to ebx
 			mov eax, 1
 			int 0x80
 		times2:
 			push ebp
-			mov ebp, esp	; preserves current top of stack
+			mov ebp, esp		; preserves current top of stack
 			mov eax, [ebp+8]	; argument, next argument is 4 bytes after
 			add eax, eax
-			mov esp, ebp	; restore stack pointer
+			mov esp, ebp		; restore stack pointer
 			pop ebp
 			ret
 
@@ -268,9 +268,9 @@
 		section .data
 			msg db "Testing %i...", 0x0a, 0x00	; 0x0a - 10 - \n, 0x00 - tells end of string (null terminator)
 		main:
-			push ebp		; prolog
+			push ebp	; prolog
 			mov ebp, esp
-			push 123		; push in reverse order
+			push 123	; push in reverse order
 			push msg
 			call printf
 			mov eax, 0	; exit status
@@ -282,7 +282,7 @@
 		
 				nasm -f elf32 ex10.asm ex10.o
 				sudo apt-get install gcc-multilib -y
-				gcc -m32 ex10.o -o ex10 -> 32 bit assembly
+				gcc -m32 ex10.o -o ex10 # 32 bit assembly
 				./ex10
 				
 3. We need to pop items from the stack when we return from a function
@@ -290,7 +290,7 @@
 ## Calling Assembly from C ##
 1. Assembly program
 
-		global add42 ; linker gets access to this label
+		global add42			; linker gets access to this label
 		add42:
 			push ebp
 			mov ebp, esp
@@ -324,7 +324,7 @@
 			
 		1. compiling
 		
-				gcc -m32 add32.o main.c -o ex11 -- add32.o is 32 bit object file
+				gcc -m32 add32.o main.c -o ex11 # add32.o is 32 bit object file
 				./ex11
 				
 2. Inline assembly - discouraged
