@@ -7,11 +7,11 @@
 	1. Syntax can differ between assemblers (even for same arch)
 2. `ex1.asm`
 
-		global _start ; entry point for program (processor executes from here), global - keyword used to make an id accessible to linker
-		_start: ; label (names locations in code)
+		global _start		; entry point for program (processor executes from here), global - keyword used to make an id accessible to linker
+		_start: 		; label (names locations in code)
 			mov eax, 1
 			mov ebx, 42
-			int 0x80 ; processor transfers control to interrupt handler specified by value 0x80 - 80 is for system call, 1 : exit call, ebx -> exit status
+			int 0x80	; processor transfers control to interrupt handler specified by value 0x80 - 80 is for system call, 1 : exit call, ebx -> exit status
 
 3. assembling:
 
@@ -39,29 +39,29 @@
 	1. comments: `; comment`
 7. Example:
 
-		mov ebx, 123 ; ebx = 123
-		mov eax, ebx ; eax = ebx
-		add ebx, ecx ; ebx += ecx
-		sub ebx, edx ; ebx -= edx
-		mul ebx ; eax *= ebx
-		div edx ; eax /= edx
+		mov ebx, 123	; ebx = 123
+		mov eax, ebx	; eax = ebx
+		add ebx, ecx	; ebx += ecx
+		sub ebx, edx	; ebx -= edx
+		mul ebx		; eax *= ebx
+		div edx		; eax /= edx
 		
 8. Inline data
 
 		global _start
 		section .data
-			msg db "Hello, world!", 0x0a ; 0x0a - for newline character
-			len equ $ - msg ; $ location after string, msg start of string
+			msg db "Hello, world!", 0x0a	; 0x0a - for newline character
+			len equ $ - msg			; $ location after string, msg start of string
 			
 		section .text
 		_start:
-			mov eax, 4 ; sys_write system call
-			mov ebx, 1 ; stdout file descriptor
-			mov ecx, msg ; bytes to write - string pointer
-			mov edx, len ; number of bytes to write
-			int 0x80 ; perform system call - interrupt
-			mov eax, 1 ; sys_exit system call
-			mov ebx, 0 ; exit status is 0
+			mov eax, 4			; sys_write system call
+			mov ebx, 1			; stdout file descriptor
+			mov ecx, msg			; bytes to write - string pointer
+			mov edx, len			; number of bytes to write
+			int 0x80			; perform system call - interrupt
+			mov eax, 1			; sys_exit system call
+			mov ebx, 0			; exit status is 0
 			int 0x80
 			
 ## Program control flow ##
@@ -80,7 +80,7 @@
 			mov eax, 1	; sys_exit system call
 			jmp skip	; jump to "skip" label
 			mov ebx, 13	; exit status is 13
-		skip: ; label
+		skip:			; label
 			int 0x80
 			
 4. Example:
@@ -140,15 +140,15 @@
 			
 2. How to change content?
 
-		mov [addr], byte 'H' ; moving data into the address, byte 'H' (byte representation of 'H' - because mov can be used for larger size data as well)
-		mov [addr+5], byte '!' ; offset of 5 bytes
+		mov [addr], byte 'H'	; moving data into the address, byte 'H' (byte representation of 'H' - because mov can be used for larger size data as well)
+		mov [addr+5], byte '!'	; offset of 5 bytes
 		
 3. Other data types
 
 		section .data
 			; db is 1 byte
 			name1 db "string"
-			name2 db 0xff ; literals can also be stored
+			name2 db 0xff		; literals can also be stored
 			name3 db 100
 			; dw is 2 bytes
 			name4 dw 0x1234
@@ -172,24 +172,24 @@
 					push 8765
 					push 246
 					sub exp, 4
-					mov [esp], dword 357 ; moving 4 bytes
-					pop eax ; only increases ESP and does not remove value
+					mov [esp], dword 357	; moving 4 bytes
+					pop eax			; only increases ESP and does not remove value
 					mov eax, dword [esp]
-					add esp, 4 ; same as pop
+					add esp, 4		; same as pop
 					
 	3. Stack example:
 	
 			global _start
 			_start:
-				sub esp, 4 ; allocate 4 bytes
+				sub esp, 4		; allocate 4 bytes
 				mov [esp], byte 'H'
 				mov [esp+1], byte 'e'
 				mov [esp+2], byte 'y'
 				mov [esp+3], byte '!'
-				mov eax, 4 ; sys_write
-				mov ebx, 1 ; stdout
-				mov ecx, esp; pointer to bytes to write
-				mov edx, 4 ; number of bytes to write
+				mov eax, 4		; sys_write
+				mov ebx, 1		; stdout
+				mov ecx, esp		; pointer to bytes to write
+				mov edx, 4		; number of bytes to write
 				int 0x80
 				
 ## Functions ##
@@ -211,7 +211,7 @@
 			mov ebx, 42
 			pop eax ; returns address of mov eax, 1 ; this and next can be replaced by `ret`
 			jmp eax
-			; ret
+			ret
 			
 4. Preserving stack status - using base pointer
 
@@ -263,25 +263,25 @@
 
 2. Calling a c function inside assembly
 
-		global main ; must be provided and c will add _start for us
+		global main					; must be provided and c will add _start for us
 		extern printf
 		section .data
 			msg db "Testing %i...", 0x0a, 0x00	; 0x0a - 10 - \n, 0x00 - tells end of string (null terminator)
 		main:
-			push ebp	; prolog
+			push ebp				; prolog
 			mov ebp, esp
-			push 123	; push in reverse order
+			push 123				; push in reverse order
 			push msg
 			call printf
-			mov eax, 0	; exit status
-			mov esp, ebp	; epilog
+			mov eax, 0				; exit status
+			mov esp, ebp				; epilog
 			pop ebp
 			ret
 			
 		1. Assembling and linking
 		
 				nasm -f elf32 ex10.asm ex10.o
-				sudo apt-get install gcc-multilib -y
+				sudo apt-get install gcc-multilib -y # one-time activity - pre-requisite for integrating asm with c
 				gcc -m32 ex10.o -o ex10 # 32 bit assembly
 				./ex10
 				
