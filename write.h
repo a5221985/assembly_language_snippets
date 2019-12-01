@@ -1,0 +1,1 @@
+void write(int, char*);
